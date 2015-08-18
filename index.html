@@ -278,6 +278,10 @@
 					  	.delay(function(d, i) { return (i * 200) + secondWordDelay; })
 					  	.style('opacity', 0)
 					  	.remove();
+
+					//remove event listener
+
+					clicky.on('click', function() { console.log('done'); });
 				});
 			});
 
