@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="d3.js" charset="utf-8"></script>
+	</head>
+	<body>
+		<style>
+			.black {
+				fill: black;
+			}
+			.white {
+				fill: white;
+			}
+			svg {
+				background: #DDD;
+				width: 100%;
+				/*height: 100%;*/
+			}
+			html, body {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				background: #DDD;
+			}
+			text {
+				font: 30px sans-serif;
+			}
+		</style>
+	
+		<svg id="canvas" viewbox = "0 0 1375 570"></svg>
+
+		<script>
+
+			var margin = {
+				top: 200,
+				left: 50,
+				top2: 250,
+				left2: 290
+			};	
+
+			var wordOffset1 = 445 - margin.left;
+
+			var wordOffset2 = 532 - margin.left2;
+
+			var binary = "0100100001100001011100000111000001111001001000000100001001101001011100100111010001101000011001000110000101111001".split("").map(function(d) { return +d; });
+
+			var decimal = [72, 97, 112, 112, 121, 32, 66, 105, 114, 116, 104, 100, 97, 121];
+
+			var ascii = "Happy Birthday".split("");
+
+
+			var binary2 = "010110010111010101110011011010000110100100100001001000000011101000101001".split("").map(function(d) { return +d; });
+
+			var decimal2 = [89, 117, 115, 104, 105, 33, 32, 58, 41];
+
+			var ascii2 = "Yushi! :)".split("");
+
+
+			var circleRadius = 4;
+
+			var circleSpacing = 3;
+
+			var charLength = (circleRadius * 2) * 8 + (circleSpacing * 8);
+
+			var squareSpacing = 5;
+
+			var squareLength = 30;
+
+			var fontSize = squareLength;
+
+			var color = d3.scale.linear()
+				.domain([0, 33, 46, 81, 100, 130, 160, 255])
+				.range(["#E19C9B", "#F2C69D", "#D8EAA2", "#9ECB9E", "#9CDEDA", "#CFE1F3"]);
+
+
+			var g = d3.select('#canvas').append('g')
+				.attr('transform', function(d, i) { 
+					return 'translate(' + ((i * charLength) + margin.left) + ", " + margin.top + ")"; 
+				});
+
+			var svg = d3.select('#canvas');
+
+			var circles = g.selectAll('circle').data(binary)
+			  .enter().append('circle')
+			  	.attr('class', function(d) { return d === 1 ? "black" : "white"; })
+			  	.attr('cx', function(d, i) { return i * circleSpacing + (i + 1) * (2 * circleRadius); })
+			  	.attr('cy', squareLength/2)
+			  	.attr('r', 0)
+
+			circles.transition()
+			  	.delay(function(d, i) { return i * 20; })
+			  	.duration(750)
+			  	.attr('r', circleRadius);
+
+			// 2ND SET OF WORDS
+
+			var g2 = d3.select('#canvas').append('g')
+				.attr('transform', function(d, i) {
+					return 'translate(' + ((i * charLength) + margin.left2) + ", " + margin.top2 + ")"; 
+				});
+
+			var circles2 = g2.selectAll('circle').data(binary2)
+			  .enter().append('circle')
+			  	.attr('class', function(d) { return d === 1 ? "black" : "white"; })
+			  	.attr('cx', function(d, i) { return i * circleSpacing + (i + 1) * (2 * circleRadius); })
+			  	.attr('cy', squareLength/2)
+			  	.attr('r', 0)
+
+			circles2.transition()
+			  	.delay(function(d, i) { return i * 30; })
+			  	.duration(750)
+			  	.attr('r', circleRadius);
+
+
+			svg.on('click', function(){
+				//REMOVE CIRCLES
+				var squares = circles.data(decimal, function(d, i) { return Math.random() + i; });
+				squares.exit()
+				  .transition()
+				  	.duration(1000)
+				  	.style('opacity', 0)
+				  	.attr('cx', function(d, i) {
+				  		var character = Math.floor(i/8); //nth character
+				  		var x = character * charLength //offset from left
+				  		x += charLength /2;
+				  		return x;
+				  	})
+				  	.remove();
+				  	// .each("end", function(d, i){
+				  	// 	if(i == 15) console.log('finished');
+				  	// 	//could put adding rects here?
+				  	// });
+				//ADD SQUARES
+				squares.enter().append('rect')
+					.attr('class', 'square')
+					.attr('x', function(d, i) { return (i * charLength) + charLength / 2 ; })
+					.attr('y', squareLength / 2) //start in middle so the square expand outwards
+					.attr('width', 0)
+					.attr('height', 0)
+					.attr('rx', 5)
+					.attr('ry', 5)
+					.style('fill', function(d) { return color(d); })
+				  .transition()
+				  	.duration(1000)
+				  	.attr('x', function(d, i) { return (i * charLength) + (charLength / 2) - (squareLength / 2) })
+				  	.attr('y', 0)
+				  	.attr('width', squareLength)
+				  	.attr('height', squareLength)
+				  .transition()
+				  	.attr('x', function(d, i) { return (i * squareLength) + (i * squareSpacing) + wordOffset1; });
+
+
+				// REMOVE CIRCLES 2
+				var squares2 = circles2.data(decimal2, function(d, i) { return Math.random() + i; });
+				squares2.exit()
+				  .transition()
+				  	.duration(1000)
+				  	.style('opacity', 0)
+				  	.attr('cx', function(d, i) {
+				  		var character = Math.floor(i/8); //nth character
+				  		var x = character * charLength //offset from left
+				  		x += charLength /2;
+				  		return x;
+				  	})
+				  	.remove();
+
+
+				//ADD SQUARES 2
+				squares2.enter().append('rect')
+					.attr('class', 'square')
+					.attr('x', function(d, i) { return (i * charLength) + charLength / 2 ; })
+					.attr('y', (squareLength / 2)) //start in middle so the square expand outwards
+					.attr('width', 0)
+					.attr('height', 0)
+					.attr('rx', 5)
+					.attr('ry', 5)
+					.style('fill', function(d) { return color(d); })
+				  .transition()
+				  	.duration(1000)
+				  	.attr('x', function(d, i) { return (i * charLength) + (charLength / 2) - (squareLength / 2) })
+				  	.attr('y', 0)
+				  	.attr('width', squareLength)
+				  	.attr('height', squareLength)
+				  .transition()
+				  	.attr('x', function(d, i) { return (i * squareLength) + (i * squareSpacing) + wordOffset2; });
+
+
+
+				// NEW LISTENER FOR 2nd CLICK
+				svg.on('click', function(){
+					var letters = squares.data(ascii, function(d, i) { return Math.random() + i; });
+					console.log(letters.enter());
+					// g.attr('transform', function(d, i) { 
+					// 	return 'translate(' + ((i * charLength) + margin.left) + ", " + margin.top + ")"; 
+					// });;
+					letters.enter().append('text')
+						.attr('x', function(d, i) { return (i * squareLength) + (i * squareSpacing) + (0.2 * squareLength) + wordOffset1; })
+						.attr('y', squareLength / 2) // start slightly above 
+						.style('opacity', 0)
+						.text(function(d) { return d; })
+					  .transition()
+					    .duration(200)
+					    .delay(function(d, i) { return i * 200; })
+					    .style('opacity', 1)
+					    .attr('y', squareLength);
+
+
+					letters.exit()
+					  .transition()
+					  	.duration(300)
+					  	.delay(function(d, i) { return i * 200; })
+					  	.style('opacity', 0)
+					  	.remove();
+
+					var secondWordDelay = 1000;
+
+					//SECOND SET
+					var letters2 = squares2.data(ascii2, function(d, i) { return Math.random() + i; });
+
+					letters2.enter().append('text')
+						.attr('x', function(d, i) { return (i * squareLength) + (i * squareSpacing) + (0.2 * squareLength) + wordOffset2; })
+						.attr('y', squareLength / 2) // start slightly above 
+						.style('opacity', 0)
+						.text(function(d) { return d; })
+					  .transition()
+					    .duration(200)
+					    .delay(function(d, i) { return (i * 200) + secondWordDelay; })
+					    .style('opacity', 1)
+					    .attr('y', squareLength);
+
+					letters2.exit()
+					  .transition()
+					  	.duration(300)
+					  	.delay(function(d, i) { return (i * 200) + secondWordDelay; })
+					  	.style('opacity', 0)
+					  	.remove();
+				});
+			});
+
+			
+
+		</script>
+	</body>
+</html>
