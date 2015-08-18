@@ -26,6 +26,11 @@
 			text {
 				font: 30px sans-serif;
 			}
+
+			.clicky {
+				fill: #6987A5;
+				cursor: pointer;
+			}
 		</style>
 	
 		<svg id="canvas" viewbox = "0 0 1375 570"></svg>
@@ -74,6 +79,44 @@
 				.range(["#E19C9B", "#F2C69D", "#D8EAA2", "#9ECB9E", "#9CDEDA", "#CFE1F3"]);
 
 
+
+		 	// CLICKY CIRCLE
+
+		 	var clicky = d3.select('#canvas').append('circle')
+		 		.attr('class', 'clicky')
+		 		.attr('cx', 687)
+		 		.attr('cy', 400)
+		 		.attr('r', 15)
+		 		.style('opacity', 0);
+		 	
+
+
+		 	clicky.transition()
+		 	  	.delay(2000)
+		 	  	.duration(1000)
+		 	    .style('opacity', 1)
+	 		  .transition()
+	 		  	.duration(1000)
+	 		  	.each(pulse);
+
+	 		function pulse() {
+	 			var circle = d3.select(this);
+	 			(function repeat() {
+	 				circle = circle.transition()
+	 					.attr('r', 25)
+	 				  .transition()
+	 				  	.attr('r', 20)
+	 				  	.each("end", repeat);
+	 			})();
+	 		}
+
+
+
+
+
+			// FIRST SET OF WORDS
+
+
 			var g = d3.select('#canvas').append('g')
 				.attr('transform', function(d, i) { 
 					return 'translate(' + ((i * charLength) + margin.left) + ", " + margin.top + ")"; 
@@ -113,7 +156,7 @@
 			  	.attr('r', circleRadius);
 
 
-			svg.on('click', function(){
+			clicky.on('click', function(){
 				//REMOVE CIRCLES
 				var squares = circles.data(decimal, function(d, i) { return Math.random() + i; });
 				squares.exit()
@@ -188,7 +231,7 @@
 
 
 				// NEW LISTENER FOR 2nd CLICK
-				svg.on('click', function(){
+				clicky.on('click', function(){
 					var letters = squares.data(ascii, function(d, i) { return Math.random() + i; });
 					console.log(letters.enter());
 					// g.attr('transform', function(d, i) { 
